@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Всички пътеписи — WanderBG{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <div class="page-header">
+        <h1>Пътеписи</h1>
+        {% if search %}<p class="text-muted">Резултати за: <strong>{{ search }}</strong></p>{% endif %}
+    </div>
+    <form class="mb-4 search-bar-inline" method="get">
+        <div class="input-group">
+            <input type="search" name="q" class="form-control" placeholder="Търси по заглавие, локация..." value="{{ search }}">
+            <button class="btn btn-accent" type="submit"><i class="bi bi-search"></i> Търси</button>
+        </div>
+    </form>
+    {% if posts %}
+    <div class="row g-4">
+        {% for post in posts %}{% include 'partials/post_card.html' %}{% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="bi bi-compass"></i>
+        <h3>Няма намерени пътеписи</h3>
+        <p>Бъди първият, който ще сподели пътешествие!</p>
+        {% if user.is_authenticated %}<a href="{% url 'post_create' %}" class="btn btn-accent">Напиши пътепис</a>{% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,6 @@
+{% load static %}
+<span class="stars-display">
+{% with value|floatformat:"0" as v %}
+{% for i in "12345" %}{% if forloop.counter <= v|add:0 %}★{% else %}☆{% endif %}{% endfor %}
+{% endwith %}
+</span>

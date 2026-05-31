@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}{{ profile_user.get_full_name|default:profile_user.username }} — WanderBG{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <div class="profile-header">
+        <img src="{{ profile_user.profile.get_avatar_url }}" class="profile-avatar" alt="">
+        <div class="profile-info">
+            <h1>{{ profile_user.get_full_name|default:profile_user.username }}</h1>
+            <p class="profile-handle">@{{ profile_user.username }}</p>
+            {% if profile_user.profile.location %}<p><i class="bi bi-geo-alt"></i> {{ profile_user.profile.location }}</p>{% endif %}
+            {% if profile_user.profile.bio %}<p class="profile-bio">{{ profile_user.profile.bio }}</p>{% endif %}
+            {% if profile_user.profile.website %}<p><a href="{{ profile_user.profile.website }}" target="_blank">{{ profile_user.profile.website }}</a></p>{% endif %}
+            <p class="text-muted small">Член от {{ profile_user.profile.joined|date:"F Y" }}</p>
+            {% if user == profile_user %}
+            <a href="{% url 'edit_profile' %}" class="btn btn-accent btn-sm mt-2"><i class="bi bi-pencil"></i> Редактирай профил</a>
+            {% endif %}
+        </div>
+    </div>
+    <h3 class="mt-5 mb-4">Пътеписи ({{ posts.count }})</h3>
+    {% if posts %}
+    <div class="row g-4">{% for post in posts %}{% include 'partials/post_card.html' %}{% endfor %}</div>
+    {% else %}
+    <div class="empty-state"><i class="bi bi-compass"></i><h4>Все още няма пътеписи</h4></div>
+    {% endif %}
+</div>
+{% endblock %}

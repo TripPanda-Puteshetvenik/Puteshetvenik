@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}WanderBG — Пътеписи от целия свят{% endblock %}</title>
+    {% load static %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="{% static 'css/main.css' %}" rel="stylesheet">
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg">
+    <div class="container">
+        <a class="navbar-brand" href="{% url 'home' %}">
+            <span class="brand-icon">✈</span> WanderBG
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navMenu">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item"><a class="nav-link" href="{% url 'post_list' %}">Пътеписи</a></li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Континенти</a>
+                    <ul class="dropdown-menu">
+                        {% for c in continents %}
+                        <li><a class="dropdown-item" href="{% url 'continent_posts' c.slug %}">{{ c.icon }} {{ c.name }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Тип пътуване</a>
+                    <ul class="dropdown-menu">
+                        {% for t in travel_types %}
+                        <li><a class="dropdown-item" href="{% url 'travel_type_posts' t.name %}">{{ t.icon }} {{ t }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </li>
+            </ul>
+            <div class="navbar-nav ms-auto align-items-center gap-2">
+                <form class="d-flex" action="{% url 'post_list' %}" method="get">
+                    <input class="form-control search-input" type="search" name="q" placeholder="Търси дестинация..." value="{{ request.GET.q }}">
+                </form>
+                {% if user.is_authenticated %}
+                <a href="{% url 'post_create' %}" class="btn btn-accent btn-sm">+ Нов пътепис</a>
+                <div class="dropdown">
+                    <a class="nav-link dropdown-toggle user-menu" href="#" data-bs-toggle="dropdown">
+                        <img src="{{ user.profile.get_avatar_url }}" class="avatar-sm" alt="">
+                        {{ user.username }}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{% url 'profile' user.username %}"><i class="bi bi-person"></i> Профил</a></li>
+                        <li><a class="dropdown-item" href="{% url 'edit_profile' %}"><i class="bi bi-gear"></i> Настройки</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="bi bi-box-arrow-right"></i> Изход</a></li>
+                    </ul>
+                </div>
+                {% else %}
+                <a href="{% url 'login' %}" class="btn btn-outline-light btn-sm">Вход</a>
+                <a href="{% url 'register' %}" class="btn btn-accent btn-sm">Регистрация</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</nav>
+
+<main>
+    {% if messages %}
+    <div class="container mt-3">
+        {% for msg in messages %}
+        <div class="alert alert-{{ msg.tags }} alert-dismissible fade show" role="alert">
+            {{ msg }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+</main>
+
+<footer class="site-footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <h5 class="footer-brand">✈ WanderBG</h5>
+                <p>Споделяйте пътешествията си с общност от пътешественици.</p>
+            </div>
+            <div class="col-md-4">
+                <h6>Континенти</h6>
+                <ul class="footer-links">
+                    {% for c in continents %}
+                    <li><a href="{% url 'continent_posts' c.slug %}">{{ c.icon }} {{ c.name }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <h6>Типове пътувания</h6>
+                <ul class="footer-links">
+                    {% for t in travel_types %}
+                    <li><a href="{% url 'travel_type_posts' t.name %}">{{ t.icon }} {{ t }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        <hr>
+        <p class="text-center mb-0">© 2025 WanderBG. Създадено с ❤️ за пътешественици.</p>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{% static 'js/main.js' %}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

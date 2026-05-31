@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ post.title }} — WanderBG{% endblock %}
+{% block content %}
+<article class="post-detail">
+    <!-- Cover -->
+    <div class="post-hero">
+        {% if post.cover_image %}
+        <img src="{{ post.cover_image.url }}" alt="{{ post.title }}" class="post-hero-img">
+        {% else %}
+        <div class="post-hero-placeholder"></div>
+        {% endif %}
+        <div class="post-hero-overlay">
+            <div class="container">
+                <div class="post-meta-top">
+                    {% if post.country %}
+                    <a href="{% url 'country_posts' post.country.slug %}" class="badge-country">{{ post.country.flag }} {{ post.country.name }}</a>
+                    {% endif %}
+                    {% for tt in post.travel_types.all %}<span class="badge-type">{{ tt.icon }} {{ tt }}</span>{% endfor %}
+                </div>
+                <h1 class="post-hero-title">{{ post.title }}</h1>
+                <div class="post-hero-meta">
+                    <a href="{% url 'profile' post.author.username %}" class="author-link">
+                        <img src="{{ post.author.profile.get_avatar_url }}" class="avatar-sm" alt="">
+                        {{ post.author.get_full_name|default:post.author.username }}
+                    </a>
+                    <span><i class="bi bi-geo-alt"></i> {{ post.location_name }}</span>
+                    <span><i class="bi bi-calendar3"></i> {{ post.created_at|date:"d F Y" }}</span>
+                    <span><i class="bi bi-eye"></i> {{ post.views_count }} прегледа</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container post-layout">
+        <div class="row">
+            <!-- Main content -->
+            <div class="col-lg-8">
+                <div class="post-body">{{ post.body|linebreaks }}</div>
+
+                <!-- Gallery -->
+                {% if gallery %}
+                <div class="post-gallery mt-5">
+                    <h3 class="section-sub-title">Галерия</h3>
+                    <div class="gallery-grid">
+                        {% for img in gallery %}
+                        <div class="gallery-item" data-index="{{ forloop.counter0 }}">
+                            <img src="{{ img.image.url }}" alt="{{ img.caption }}" loading="lazy">
+                            {% if img.caption %}<div class="gallery-caption">{{ img.caption }}</div>{% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <!-- Lightbox -->
+                <div id="lightbox" class="lightbox hidden">
+                    <button class="lb-close" id="lb-close"><i class="bi bi-x-lg"></i></button>
+                    <button class="lb-prev" id="lb-prev"><i class="bi bi-chevron-left"></i></button>
+                    <div class="lb-content">
+                        <img id="lb-img" src="" alt="">
+                        <p id="lb-caption"></p>
+                    </div>
+                    <button class="lb-next" id="lb-next"><i class="bi bi-chevron-right"></i></button>
+                </div>
+                {% endif %}
+
+                <!-- Comments -->
+                <section class="comments-section mt-5">
+                    <h3 class="section-sub-title">Коментари ({{ comments.count }})</h3>
+                    {% if user.is_authenticated %}
+                    <form method="post" action="{% url 'add_comment' post.pk %}" class="comment-form mb-4">
+                        {% csrf_token %}
+                        {{ comment_form }}
+                        <button type="submit" class="btn btn-accent mt-2">Публикувай коментар</button>
+                    </form>
+                    {% else %}
+                    <p class="text-muted"><a href="{% url 'login' %}">Влезте</a>, за да коментирате.</p>
+                    {% endif %}
+                    <div class="comments-list">
+                        {% for comment in comments %}
+                        <div class="comment-item">
+                            <div class="comment-avatar">
+                                <img src="{{ comment.author.profile.get_avatar_url }}" class="avatar-sm" alt="">
+                            </div>
+                            <div class="comment-content">
+                                <div class="comment-header">
+                                    <a href="{% url 'profile' comment.author.username %}" class="comment-author">{{ comment.author.get_full_name|default:comment.author.username }}</a>
+                                    <span class="comment-date">{{ comment.created_at|date:"d M Y, H:i" }}</span>
+                                    {% if user == comment.author or user.is_staff %}
+                                    <form method="post" action="{% url 'delete_comment' comment.pk %}" class="d-inline ms-2">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn-icon-danger" onclick="return confirm('Изтрий коментара?')"><i class="bi bi-trash"></i></button>
+                                    </form>
+                                    {% endif %}
+                                </div>
+                                <p class="comment-body">{{ comment.body }}</p>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-muted">Все още няма коментари. Бъди първи!</p>
+                        {% endfor %}
+                    </div>
+                </section>
+            </div>
+
+            <!-- Sidebar -->
+            <aside class="col-lg-4">
+                <!-- Rating -->
+                <div class="sidebar-card">
+                    <h5 class="sidebar-card-title">Оценка на дестинацията</h5>
+                    {% if avg_rating %}
+                    <div class="rating-display">
+                        <div class="rating-overall">{{ avg_rating.overall }}</div>
+                        <div class="rating-stars">{% include 'partials/stars.html' with value=avg_rating.overall %}</div>
+                        <p class="rating-count">{{ avg_rating.count }} оценки</p>
+                    </div>
+                    <div class="rating-breakdown">
+                        <div class="rb-row"><span>💰 Цена</span><div class="rb-bar"><div class="rb-fill" style="width:{{ avg_rating.price|floatformat:0 }}0%"></div></div><span>{{ avg_rating.price }}</span></div>
+                        <div class="rb-row"><span>📍 Локация</span><div class="rb-bar"><div class="rb-fill" style="width:{{ avg_rating.location|floatformat:0 }}0%"></div></div><span>{{ avg_rating.location }}</span></div>
+                        <div class="rb-row"><span>✨ Атмосфера</span><div class="rb-bar"><div class="rb-fill" style="width:{{ avg_rating.atmosphere|floatformat:0 }}0%"></div></div><span>{{ avg_rating.atmosphere }}</span></div>
+                    </div>
+                    {% else %}
+                    <p class="text-muted small">Все още няма оценки.</p>
+                    {% endif %}
+
+                    {% if user.is_authenticated and user != post.author %}
+                    <button class="btn btn-accent w-100 mt-3" data-bs-toggle="collapse" data-bs-target="#ratingForm">
+                        {% if user_rating %}Промени оценката{% else %}Оцени дестинацията{% endif %}
+                    </button>
+                    <div class="collapse mt-3" id="ratingForm">
+                        <form method="post" action="{% url 'add_rating' post.pk %}">
+                            {% csrf_token %}
+                            <div class="star-group mb-3">
+                                <label>💰 Цена</label>
+                                <div class="star-row">{% for i in "12345" %}<input type="radio" name="price" value="{{ forloop.counter }}" id="price_{{ forloop.counter }}" {% if user_rating and user_rating.price == forloop.counter %}checked{% endif %} required><label for="price_{{ forloop.counter }}">★</label>{% endfor %}</div>
+                            </div>
+                            <div class="star-group mb-3">
+                                <label>📍 Локация</label>
+                                <div class="star-row">{% for i in "12345" %}<input type="radio" name="location" value="{{ forloop.counter }}" id="loc_{{ forloop.counter }}" {% if user_rating and user_rating.location == forloop.counter %}checked{% endif %} required><label for="loc_{{ forloop.counter }}">★</label>{% endfor %}</div>
+                            </div>
+                            <div class="star-group mb-3">
+                                <label>✨ Атмосфера</label>
+                                <div class="star-row">{% for i in "12345" %}<input type="radio" name="atmosphere" value="{{ forloop.counter }}" id="atm_{{ forloop.counter }}" {% if user_rating and user_rating.atmosphere == forloop.counter %}checked{% endif %} required><label for="atm_{{ forloop.counter }}">★</label>{% endfor %}</div>
+                            </div>
+                            <button type="submit" class="btn btn-accent w-100">Запази оценката</button>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Author -->
+                <div class="sidebar-card">
+                    <h5 class="sidebar-card-title">За автора</h5>
+                    <div class="author-sidebar">
+                        <img src="{{ post.author.profile.get_avatar_url }}" class="author-avatar" alt="">
+                        <div>
+                            <a href="{% url 'profile' post.author.username %}" class="author-name">{{ post.author.get_full_name|default:post.author.username }}</a>
+                            {% if post.author.profile.bio %}<p class="author-bio">{{ post.author.profile.bio|truncatewords:20 }}</p>{% endif %}
+                            <p class="small text-muted">{{ post.author.profile.posts_count }} пътеписа</p>
+                        </div>
+                    </div>
+                </div>
+
+                {% if user == post.author %}
+                <div class="sidebar-card">
+                    <h5 class="sidebar-card-title">Управление</h5>
+                    <a href="{% url 'post_edit' post.pk %}" class="btn btn-outline-secondary w-100 mb-2"><i class="bi bi-pencil"></i> Редактирай</a>
+                    <a href="{% url 'post_delete' post.pk %}" class="btn btn-outline-danger w-100"><i class="bi bi-trash"></i> Изтрий</a>
+                </div>
+                {% endif %}
+            </aside>
+        </div>
+    </div>
+</article>
+{% endblock %}
+{% block extra_js %}
+<script>
+const galleryItems = [{% for img in gallery %}{ src: "{{ img.image.url }}", caption: "{{ img.caption|escapejs }}" },{% endfor %}];
+let currentIdx = 0;
+const lb = document.getElementById('lightbox');
+const lbImg = document.getElementById('lb-img');
+const lbCap = document.getElementById('lb-caption');
+document.querySelectorAll('.gallery-item').forEach((el, i) => {
+    el.addEventListener('click', () => { currentIdx = i; openLB(); });
+});
+function openLB() {
+    lbImg.src = galleryItems[currentIdx].src;
+    lbCap.textContent = galleryItems[currentIdx].caption;
+    lb.classList.remove('hidden');
+}
+document.getElementById('lb-close').addEventListener('click', () => lb.classList.add('hidden'));
+document.getElementById('lb-prev').addEventListener('click', () => { currentIdx = (currentIdx - 1 + galleryItems.length) % galleryItems.length; openLB(); });
+document.getElementById('lb-next').addEventListener('click', () => { currentIdx = (currentIdx + 1) % galleryItems.length; openLB(); });
+lb.addEventListener('click', e => { if (e.target === lb) lb.classList.add('hidden'); });
+</script>
+{% endblock %}

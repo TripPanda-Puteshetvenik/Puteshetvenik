@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block title %}Вход — WanderBG{% endblock %}
+{% block content %}
+<div class="auth-page">
+    <div class="auth-card">
+        <div class="auth-header">
+            <span class="auth-icon">✈</span>
+            <h2>Добре дошли</h2>
+            <p>Влезте в профила си</p>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <button type="submit" class="btn btn-accent w-100 mt-3">Вход</button>
+        </form>
+        <p class="auth-switch">Нямаш профил? <a href="{% url 'register' %}">Регистрирай се</a></p>
+    </div>
+</div>
+{% endblock %}

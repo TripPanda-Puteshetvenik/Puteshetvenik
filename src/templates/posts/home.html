@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}WanderBG — Пътеписи от целия свят{% endblock %}
+{% block content %}
+<section class="hero">
+    <div class="hero-bg"></div>
+    <div class="container hero-content">
+        <p class="hero-eyebrow">Открий света</p>
+        <h1 class="hero-title">Пътеписи от<br><em>истински пътешественици</em></h1>
+        <p class="hero-sub">Споделяй преживяванията си. Вдъхновявай другите.</p>
+        <div class="hero-actions">
+            <a href="{% url 'post_list' %}" class="btn btn-hero-primary">Разгледай пътеписи</a>
+            {% if not user.is_authenticated %}
+            <a href="{% url 'register' %}" class="btn btn-hero-outline">Стани автор</a>
+            {% else %}
+            <a href="{% url 'post_create' %}" class="btn btn-hero-outline">+ Нов пътепис</a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% if featured %}
+<section class="section-featured">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-label">Препоръчани</span>
+            <h2 class="section-title">Избрани пътеписи</h2>
+        </div>
+        <div class="row g-4">{% for post in featured %}{% include 'partials/post_card.html' %}{% endfor %}</div>
+    </div>
+</section>
+{% endif %}
+<section class="continent-bar">
+    <div class="container">
+        <div class="d-flex flex-wrap justify-content-center gap-3">
+            {% for c in continents %}<a href="{% url 'continent_posts' c.slug %}" class="continent-pill"><span>{{ c.icon }}</span> {{ c.name }}</a>{% endfor %}
+        </div>
+    </div>
+</section>
+{% if recent %}
+<section class="section-recent">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-label">Последно добавени</span>
+            <h2 class="section-title">Нови пътеписи</h2>
+            <a href="{% url 'post_list' %}" class="section-all-link">Всички <i class="bi bi-arrow-right"></i></a>
+        </div>
+        <div class="row g-4">{% for post in recent %}{% include 'partials/post_card.html' %}{% endfor %}</div>
+    </div>
+</section>
+{% endif %}
+<section class="travel-types-section">
+    <div class="container">
+        <div class="section-header"><h2 class="section-title">Пътувай по свой начин</h2></div>
+        <div class="d-flex flex-wrap justify-content-center gap-3">
+            {% for t in travel_types %}<a href="{% url 'travel_type_posts' t.name %}" class="travel-type-card"><span class="tt-icon">{{ t.icon }}</span><span class="tt-name">{{ t }}</span></a>{% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

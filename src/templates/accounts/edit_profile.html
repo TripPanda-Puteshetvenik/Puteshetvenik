@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block title %}Редактирай профил — WanderBG{% endblock %}
+{% block content %}
+<div class="container py-5" style="max-width:700px">
+    <h2 class="mb-4">Редактирай профил</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-card mb-4">
+            <h5 class="form-card-title">Лична информация</h5>
+            {{ user_form|crispy }}
+        </div>
+        <div class="form-card mb-4">
+            <h5 class="form-card-title">Профил</h5>
+            {{ profile_form|crispy }}
+        </div>
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-accent">Запази промените</button>
+            <a href="{% url 'profile' user.username %}" class="btn btn-outline-secondary">Откажи</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
