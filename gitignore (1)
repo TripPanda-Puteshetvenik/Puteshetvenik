@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+venv/
+env/
+.venv/
+
+# Django
+db.sqlite3
+db.sqlite3-journal
+
+# Environment variables
+.env
+
+# Static and media files (ако не искаш да ги качваш)
+media/
+static/
+
+# Logs
+*.log
+
+# Coverage reports
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Migrations (по желание)
+# */migrations/*.py
+# !*/migrations/__init__.py
+
+# IDEs
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
